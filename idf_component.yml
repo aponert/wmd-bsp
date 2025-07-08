@@ -1,0 +1,8 @@
+version: "0.0.1"
+url: "https://github.com/aponert/wmd-bsp"
+description: "This ESP-IDF component provides a board support package for the Waveshare ESP32-C6-LCD-1.47 and ESP32-S3-LCD-1.47 boards"
+dependencies:
+  idf:
+    version: '>=5.4.0'
+  espressif/esp_lvgl_port: ^2.6.0
+  espressif/led_strip: ^3.0.1~1

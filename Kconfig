@@ -1,0 +1,27 @@
+menu "Waveshare Mini Display BSP"
+
+    choice WMD_DEVICE
+        prompt "Waveshare Mini Display Device"
+        default WMD_DEVICE_C6
+        help
+            Choose your device. No IMU or touch support for newer versions
+
+        config WMD_DEVICE_C6
+            bool "ESP32-C6-LCD-1.47 (USB-C)"
+        config WMD_DEVICE_S3
+            bool "ESP32-S3-LCD-1.47 (USB-A/USB-C)"
+    endchoice
+
+    choice WMD_LCD_ORIENTATION
+        prompt "LCD Orientation"
+        default WMD_LCD_ORIENTATION_PORTRAIT
+        help
+            Choose between portrait and landscape mode
+
+        config WMD_LCD_ORIENTATION_PORTRAIT
+            bool "Portrait"
+        config WMD_LCD_ORIENTATION_LANDSCAPE
+            bool "Landscape"
+    endchoice
+
+endmenu
