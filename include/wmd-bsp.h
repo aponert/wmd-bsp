@@ -2,6 +2,8 @@
 
 #include "driver/gpio.h"
 
+#include "button_gpio.h"
+
 // Pin Map
 #if defined(CONFIG_WMD_DEVICE_C6)
     #define WMD_LCD_MISO GPIO_NUM_NC
@@ -13,6 +15,7 @@
     #define WMD_LCD_RST GPIO_NUM_21
 
     #define WMD_RGB_LED GPIO_NUM_8
+    #define WMD_BTN_BOOT GPIO_NUM_9
 #elif defined(CONFIG_WMD_DEVICE_S3)
     #define WMD_LCD_MISO GPIO_NUM_NC
     #define WMD_LCD_MOSI GPIO_NUM_45
@@ -23,6 +26,7 @@
     #define WMD_LCD_RST GPIO_NUM_39
 
     #define WMD_RGB_LED GPIO_NUM_38
+    #define WMD_BTN_BOOT GPIO_NUM_0
 #endif
 
 // SPI configuration
@@ -70,3 +74,8 @@ void wmd_set_backlight(const uint8_t level);
  * Set RGB LED color/brightness
  */
 void wmd_set_rgb_led(const uint32_t red, const uint32_t green, const uint32_t blue);
+
+/**
+ * Get handle of the button
+ */
+button_handle_t* wmd_button_get_handle();

@@ -14,6 +14,7 @@
 #include "led_strip.h"
 
 static led_strip_handle_t led_strip = NULL;
+static button_handle_t btn_boot = NULL;
 
 /**
  * Initialize SPI bus
@@ -164,11 +165,30 @@ void wmd_set_rgb_led(const uint32_t red, const uint32_t green, const uint32_t bl
 }
 
 /**
- * Fully initialize display driver, display, LVGL and RGB LED
+ * Initialize boot button as normal button
+ */
+void wmd_button_init()
+{
+    const button_config_t btn_cfg = {0};
+    const button_gpio_config_t btn_gpio_cfg = {
+        .gpio_num = WMD_BTN_BOOT,
+        .active_level = 0,
+    };
+    iot_button_new_gpio_device(&btn_cfg, &btn_gpio_cfg, &btn_boot);
+}
+
+button_handle_t* wmd_button_get_handle()
+{
+    return &btn_boot;
+}
+
+/**
+ * Fully initialize display driver, display, LVGL, button and RGB LED
  */
 void wmd_init()
 {
     rgb_led_init();
+    wmd_button_init();
     backlight_init();
     spi_init();
     esp_lcd_panel_handle_t panel_handle = {0};
