@@ -22,11 +22,11 @@ static button_handle_t btn_boot = NULL;
 static void spi_init()
 {
     const spi_bus_config_t spi_bus_config = {
-        .sclk_io_num = WMD_LCD_SCLK,
+        .sclk_io_num = WMD_SPI_SCLK,
         .quadwp_io_num = GPIO_NUM_NC,
         .quadhd_io_num = GPIO_NUM_NC,
-        .mosi_io_num = WMD_LCD_MOSI,
-        .miso_io_num = WMD_LCD_MISO,
+        .mosi_io_num = WMD_SPI_MOSI,
+        .miso_io_num = WMD_SPI_MISO,
         .max_transfer_sz = WMD_LCD_WIDTH * WMD_LCD_HEIGHT * sizeof(uint16_t),
     };
 

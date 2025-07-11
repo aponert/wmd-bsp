@@ -6,15 +6,25 @@
 
 // Pin Map
 #if defined(CONFIG_WMD_DEVICE_C6)
+    #define WMD_SPI_SCLK GPIO_NUM_7
+    #define WMD_SPI_MISO GPIO_NUM_5
+    #define WMD_SPI_MOSI GPIO_NUM_6
+
     #define WMD_LCD_MISO GPIO_NUM_NC
-    #define WMD_LCD_MOSI GPIO_NUM_6
-    #define WMD_LCD_SCLK GPIO_NUM_7
+    #define WMD_LCD_MOSI WMD_SPI_MOSI
+    #define WMD_LCD_SCLK WMD_SPI_SCLK
     #define WMD_LCD_CS GPIO_NUM_14
     #define WMD_LCD_BL GPIO_NUM_22
     #define WMD_LCD_DC GPIO_NUM_15
     #define WMD_LCD_RST GPIO_NUM_21
 
+    #define WMD_SD_SCLK WMD_SPI_SCLK
+    #define WMD_SD_MOSI WMD_SPI_MOSI
+    #define WMD_SD_MISO WMD_SPI_MISO
+    #define WMD_SD_CS GPIO_NUM_4
+
     #define WMD_RGB_LED GPIO_NUM_8
+
     #define WMD_BTN_BOOT GPIO_NUM_9
 #elif defined(CONFIG_WMD_DEVICE_S3)
     #define WMD_LCD_MISO GPIO_NUM_NC
@@ -26,6 +36,7 @@
     #define WMD_LCD_RST GPIO_NUM_39
 
     #define WMD_RGB_LED GPIO_NUM_38
+
     #define WMD_BTN_BOOT GPIO_NUM_0
 #endif
 
