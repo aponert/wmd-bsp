@@ -90,3 +90,8 @@ void wmd_set_rgb_led(const uint32_t red, const uint32_t green, const uint32_t bl
  * Return the boot button handle to allow external code to bind callbacks to it
  */
 button_handle_t* wmd_button_get_handle();
+
+/**
+ * Returns, if the sdcard is ready to use
+ */
+bool wmd_is_sdcard_ready();

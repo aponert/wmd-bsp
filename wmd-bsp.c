@@ -19,6 +19,7 @@
 
 static led_strip_handle_t led_strip = NULL;
 static button_handle_t btn_boot = NULL;
+static bool sdcard_ready = false;
 
 /**
  * Initialize SPI bus
@@ -211,11 +212,22 @@ static void sdcard_init()
     };
 
     sdmmc_card_t* card;
-    esp_vfs_fat_sdspi_mount("/sdcard", &sdmmc_host, &sd_dev, &mount_config, &card);
+    esp_err_t result = esp_vfs_fat_sdspi_mount("/sdcard", &sdmmc_host, &sd_dev, &mount_config, &card);
+    if (result == ESP_OK) {
+        sdcard_ready = true;
+    }
 }
 
 /**
- * Fully initialize display driver, display, LVGL, button and RGB LED
+ * Returns, if the sdcard is ready to use
+ */
+bool wmd_is_sdcard_ready()
+{
+    return sdcard_ready;
+}
+
+/**
+ * Fully initialize display driver, display, LVGL, button, sdcard and RGB LED
  */
 void wmd_init()
 {
