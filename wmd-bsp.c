@@ -1,6 +1,10 @@
 #include "wmd-bsp.h"
 
 #include "driver/spi_master.h"
+#include "driver/sdspi_host.h"
+#include "sdmmc_cmd.h"
+
+#include "esp_vfs_fat.h"
 
 #include "esp_lcd_io_spi.h"
 #include "esp_lcd_panel_dev.h"
@@ -30,7 +34,7 @@ static void spi_init()
         .max_transfer_sz = WMD_LCD_WIDTH * WMD_LCD_HEIGHT * sizeof(uint16_t),
     };
 
-    spi_bus_initialize(WMD_LCD_SPI_HOST, &spi_bus_config, SPI_DMA_CH_AUTO);
+    spi_bus_initialize(WMD_SPI_HOST, &spi_bus_config, SPI_DMA_CH_AUTO);
 }
 
 /**
@@ -41,14 +45,14 @@ static void lcd_init(esp_lcd_panel_io_handle_t *panel_io_handle, esp_lcd_panel_h
     const esp_lcd_panel_io_spi_config_t spi_io_config = {
         .cs_gpio_num = WMD_LCD_CS,
         .dc_gpio_num = WMD_LCD_DC,
-        .pclk_hz = WMD_LCD_SPI_SPEED,
-        .spi_mode = WMD_LCD_SPI_MODE,
+        .pclk_hz = WMD_SPI_SPEED,
+        .spi_mode = WMD_SPI_MODE,
         .trans_queue_depth = 10,
         .lcd_cmd_bits = WMD_LCD_CMD_BITS,
         .lcd_param_bits = WMD_LCD_PARAM_BITS,
     };
 
-    esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)WMD_LCD_SPI_HOST, &spi_io_config, panel_io_handle);
+    esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)WMD_SPI_HOST, &spi_io_config, panel_io_handle);
 
     const esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = WMD_LCD_RST,
@@ -167,7 +171,7 @@ void wmd_set_rgb_led(const uint32_t red, const uint32_t green, const uint32_t bl
 /**
  * Initialize boot button as normal button
  */
-void wmd_button_init()
+static void wmd_button_init()
 {
     const button_config_t btn_cfg = {0};
     const button_gpio_config_t btn_gpio_cfg = {
@@ -177,9 +181,37 @@ void wmd_button_init()
     iot_button_new_gpio_device(&btn_cfg, &btn_gpio_cfg, &btn_boot);
 }
 
+/**
+ * Return the boot button handle to allow external code to bind callbacks to it
+ */
 button_handle_t* wmd_button_get_handle()
 {
     return &btn_boot;
+}
+
+/**
+ * Initialize sdcard via SPI and mount it as FAT on /sdcard
+ */
+static void sdcard_init()
+{
+    sdspi_device_config_t sd_dev = SDSPI_DEVICE_CONFIG_DEFAULT();
+    sd_dev.gpio_cs = WMD_SD_CS;
+    sd_dev.host_id = WMD_SPI_HOST;
+    sdspi_dev_handle_t sd_dev_handle;
+    sdspi_host_init_device(&sd_dev, &sd_dev_handle);
+
+    sdmmc_host_t sdmmc_host = SDSPI_HOST_DEFAULT();
+    sdmmc_host.slot = sd_dev_handle;
+
+    esp_vfs_fat_mount_config_t mount_config = {
+        .format_if_mount_failed = true,
+        .max_files = 4,
+        .allocation_unit_size = 1024,
+        .disk_status_check_enable = true,
+    };
+
+    sdmmc_card_t* card;
+    esp_vfs_fat_sdspi_mount("/sdcard", &sdmmc_host, &sd_dev, &mount_config, &card);
 }
 
 /**
@@ -191,6 +223,7 @@ void wmd_init()
     wmd_button_init();
     backlight_init();
     spi_init();
+    sdcard_init();
     esp_lcd_panel_handle_t panel_handle = {0};
     esp_lcd_panel_io_handle_t io_handle = {0};
     lcd_init(&io_handle, &panel_handle);

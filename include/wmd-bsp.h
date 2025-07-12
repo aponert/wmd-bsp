@@ -41,9 +41,9 @@
 #endif
 
 // SPI configuration
-#define WMD_LCD_SPI_HOST SPI2_HOST
-#define WMD_LCD_SPI_SPEED 60 * 1000 * 1000 // 42 MHz
-#define WMD_LCD_SPI_MODE 0 // CPOL = 0 / CPHA = 0
+#define WMD_SPI_HOST SPI2_HOST
+#define WMD_SPI_SPEED 42 * 1000 * 1000 // 42 MHz
+#define WMD_SPI_MODE 0 // CPOL = 0 / CPHA = 0
 
 // Configuration for LEDC periphal to steer backlight
 #define WMD_LCD_BL_TIM LEDC_TIMER_0
@@ -87,6 +87,6 @@ void wmd_set_backlight(const uint8_t level);
 void wmd_set_rgb_led(const uint32_t red, const uint32_t green, const uint32_t blue);
 
 /**
- * Get handle of the button
+ * Return the boot button handle to allow external code to bind callbacks to it
  */
 button_handle_t* wmd_button_get_handle();
