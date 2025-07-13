@@ -26,6 +26,7 @@ static bool sdcard_ready = false;
  */
 static void spi_init()
 {
+#if defined(CONFIG_WMD_DEVICE_C6)
     const spi_bus_config_t spi_bus_config = {
         .sclk_io_num = WMD_SPI_SCLK,
         .quadwp_io_num = GPIO_NUM_NC,
@@ -36,6 +37,30 @@ static void spi_init()
     };
 
     spi_bus_initialize(WMD_SPI_HOST, &spi_bus_config, SPI_DMA_CH_AUTO);
+#elif defined(CONFIG_WMD_DEVICE_S3)
+    const spi_bus_config_t spi_bus_config_lcd = {
+        .sclk_io_num = WMD_LCD_SCLK,
+        .quadwp_io_num = GPIO_NUM_NC,
+        .quadhd_io_num = GPIO_NUM_NC,
+        .mosi_io_num = WMD_LCD_MOSI,
+        .miso_io_num = WMD_LCD_MISO,
+        .max_transfer_sz = WMD_LCD_WIDTH * WMD_LCD_HEIGHT * sizeof(uint16_t),
+    };
+
+    spi_bus_initialize(WMD_SPI_HOST, &spi_bus_config_lcd, SPI_DMA_CH_AUTO);
+#endif
+
+#if defined(CONFIG_WMD_DEVICE_S3)
+const spi_bus_config_t spi_bus_config_sdcard = {
+        .sclk_io_num = WMD_SD_SCLK,
+        .quadwp_io_num = GPIO_NUM_NC,
+        .quadhd_io_num = GPIO_NUM_NC,
+        .mosi_io_num = WMD_SD_MOSI,
+        .miso_io_num = WMD_SD_MISO,
+    };
+
+    spi_bus_initialize(WMD_SPI_HOST_SD, &spi_bus_config_sdcard, SPI_DMA_CH_AUTO);
+#endif
 }
 
 /**
@@ -101,7 +126,7 @@ static lv_disp_t* lvgl_init(esp_lcd_panel_io_handle_t *io_handle, esp_lcd_panel_
     const lvgl_port_display_cfg_t disp_cfg = {
         .io_handle = *io_handle,
         .panel_handle = *panel_handle,
-        .buffer_size = WMD_LCD_WIDTH*WMD_LCD_HEIGHT,
+        .buffer_size = WMD_LCD_WIDTH*WMD_LCD_HEIGHT / 2,
         .double_buffer = true,
         .hres = WMD_LCD_WIDTH,
         .vres = WMD_LCD_HEIGHT,
@@ -197,7 +222,7 @@ static void sdcard_init()
 {
     sdspi_device_config_t sd_dev = SDSPI_DEVICE_CONFIG_DEFAULT();
     sd_dev.gpio_cs = WMD_SD_CS;
-    sd_dev.host_id = WMD_SPI_HOST;
+    sd_dev.host_id = WMD_SPI_HOST_SD;
     sdspi_dev_handle_t sd_dev_handle;
     sdspi_host_init_device(&sd_dev, &sd_dev_handle);
 
@@ -231,11 +256,11 @@ bool wmd_is_sdcard_ready()
  */
 void wmd_init()
 {
+    spi_init();
+    sdcard_init();
     rgb_led_init();
     wmd_button_init();
     backlight_init();
-    spi_init();
-    sdcard_init();
     esp_lcd_panel_handle_t panel_handle = {0};
     esp_lcd_panel_io_handle_t io_handle = {0};
     lcd_init(&io_handle, &panel_handle);
